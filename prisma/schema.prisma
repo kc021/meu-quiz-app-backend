@@ -1,30 +1,25 @@
-// Configuração do Prisma
 generator client {
   provider = "prisma-client-js"
 }
 
-// O provider foi mudado para postgresql
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// --- NOSSOS MODELOS DE DADOS (VERSÃO POSTGRESQL) ---
-
 model Usuario {
-  id           String @id @default(cuid())
-  email        String @unique
-  nome         String
-  senha_hash   String
-  data_criacao DateTime @default(now())
-  cargo        Role     @default(USER)
-
-  pontuacao       Pontuacao?
-  gruposLiderados Grupo[]            @relation("LiderDoGrupo")
-  gruposMembro    MembrosDoGrupo[]   // Relação para a tabela de junção
-  salasDeJogoAnfitriao SalaDeJogo[] @relation("HostDaSala")
-  salaDeJogoId         String?      
-  salaDeJogo           SalaDeJogo?  @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
+  id                   String           @id @default(cuid())
+  email                String           @unique
+  nome                 String
+  senha_hash           String
+  data_criacao         DateTime         @default(now())
+  cargo                Role             @default(USER)
+  pontuacao            Pontuacao?
+  gruposLiderados      Grupo[]          @relation("LiderDoGrupo")
+  gruposMembro         MembrosDoGrupo[] @relation("UsuarioMembro")
+  salasDeJogoAnfitriao SalaDeJogo[]     @relation("HostDaSala")
+  salaDeJogoId         String?
+  salaDeJogo           SalaDeJogo?      @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
 }
 
 model Categoria {
@@ -40,9 +35,8 @@ model Questao {
   opcoes          String[]
   respostaCorreta Int
   tipo            TipoQuestao @default(MULTIPLA_ESCOLHA)
-
-  categoriaId String
-  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  categoriaId     String
+  categoria       Categoria   @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 }
 
 model Pontuacao {
@@ -60,31 +54,38 @@ model Grupo {
   membros MembrosDoGrupo[] @relation("MembrosDoGrupo")
 }
 
-// Tabela de Junção explícita para a relação Muitos-para-Muitos
 model MembrosDoGrupo {
   usuarioId String
   grupoId   String
   usuario   Usuario @relation("UsuarioMembro", fields: [usuarioId], references: [id], onDelete: Cascade)
-  grupo     Grupo   @relation("MembrosDoGrupo", fields: [grupoId], references: [id], onDelete: Cascade)
+  grupo     Grupo   @relation("GrupoMembro", fields: [grupoId], references: [id], onDelete: Cascade)
 
   @@id([usuarioId, grupoId])
 }
-
 
 model SalaDeJogo {
   id          String     @id @default(cuid())
   codigo      String     @unique
   status      StatusJogo @default(AGUARDANDO)
-  
   hostId      String
   host        Usuario    @relation("HostDaSala", fields: [hostId], references: [id])
   jogadores   Usuario[]  @relation("JogadoresNaSala")
-
   categoriaId String
   categoria   Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 }
 
-// --- ENUMS ---
-enum StatusJogo { AGUARDANDO, EM_JOGO, FINALIZADO }
-enum Role { USER, ADMIN }
-enum TipoQuestao { MULTIPLA_ESCOLHA, VERDADEIRO_FALSO }
+enum StatusJogo {
+  AGUARDANDO
+  EM_JOGO
+  FINALIZADO
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TipoQuestao {
+  MULTIPLA_ESCOLHA
+  VERDADEIRO_FALSO
+}
