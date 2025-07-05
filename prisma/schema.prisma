@@ -3,91 +3,88 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// O provider foi mudado para postgresql
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// --- NOSSOS MODELOS DE DADOS ---
+// --- NOSSOS MODELOS DE DADOS (VERSÃO POSTGRESQL) ---
 
 model Usuario {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  email           String      @unique
-  nome            String
-  senha_hash      String
-  data_criacao    DateTime    @default(now())
-  
-  cargo           Role        @default(USER)
+  id           String @id @default(cuid())
+  email        String @unique
+  nome         String
+  senha_hash   String
+  data_criacao DateTime @default(now())
+  cargo        Role     @default(USER)
 
   pontuacao       Pontuacao?
-  gruposLiderados Grupo[]     @relation("LiderDoGrupo")
-  grupoIds        String[]    @db.ObjectId
-  grupos          Grupo[]     @relation("MembrosDoGrupo", fields: [grupoIds], references: [id])
-  salaDeJogoId    String?     @db.ObjectId
-  salaDeJogo      SalaDeJogo? @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
+  gruposLiderados Grupo[]            @relation("LiderDoGrupo")
+  gruposMembro    MembrosDoGrupo[]   // Relação para a tabela de junção
+  salasDeJogoAnfitriao SalaDeJogo[] @relation("HostDaSala")
+  salaDeJogoId         String?      
+  salaDeJogo           SalaDeJogo?  @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
 }
 
 model Categoria {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  nome      String       @unique
-  questoes  Questao[]
+  id          String       @id @default(cuid())
+  nome        String       @unique
+  questoes    Questao[]
   salasDeJogo SalaDeJogo[]
 }
 
 model Questao {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  id              String      @id @default(cuid())
   enunciado       String
   opcoes          String[]
   respostaCorreta Int
-  categoriaId     String   @db.ObjectId
-  categoria       Categoria @relation(fields: [categoriaId], references: [id])
-
-  // --- CAMPO DE TIPO DE QUESTÃO ADICIONADO ---
   tipo            TipoQuestao @default(MULTIPLA_ESCOLHA)
+
+  categoriaId String
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 }
 
 model Pontuacao {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(cuid())
   pontos    Int     @default(0)
-  usuarioId String  @unique @db.ObjectId
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String  @unique
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 }
 
 model Grupo {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  nome      String   @unique
-  liderId   String   @db.ObjectId
-  lider     Usuario  @relation("LiderDoGrupo", fields: [liderId], references: [id])
-  membroIds String[] @db.ObjectId
-  membros   Usuario[] @relation("MembrosDoGrupo", fields: [membroIds], references: [id])
+  id      String           @id @default(cuid())
+  nome    String           @unique
+  liderId String
+  lider   Usuario          @relation("LiderDoGrupo", fields: [liderId], references: [id])
+  membros MembrosDoGrupo[] @relation("MembrosDoGrupo")
 }
+
+// Tabela de Junção explícita para a relação Muitos-para-Muitos
+model MembrosDoGrupo {
+  usuarioId String
+  grupoId   String
+  usuario   Usuario @relation("UsuarioMembro", fields: [usuarioId], references: [id], onDelete: Cascade)
+  grupo     Grupo   @relation("MembrosDoGrupo", fields: [grupoId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, grupoId])
+}
+
 
 model SalaDeJogo {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  codigo    String     @unique
-  status    StatusJogo @default(AGUARDANDO)
-  hostId    String     @db.ObjectId
-  jogadores Usuario[]  @relation("JogadoresNaSala")
+  id          String     @id @default(cuid())
+  codigo      String     @unique
+  status      StatusJogo @default(AGUARDANDO)
+  
+  hostId      String
+  host        Usuario    @relation("HostDaSala", fields: [hostId], references: [id])
+  jogadores   Usuario[]  @relation("JogadoresNaSala")
 
-  categoriaId String    @db.ObjectId
-  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId String
+  categoria   Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 }
 
-// --- ENUMS (Tipos Especiais) ---
-
-enum StatusJogo {
-  AGUARDANDO
-  EM_JOGO
-  FINALIZADO
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-// --- NOVO ENUM PARA O TIPO DE QUESTÃO ---
-enum TipoQuestao {
-  MULTIPLA_ESCOLHA
-  VERDADEIRO_FALSO
-}
+// --- ENUMS ---
+enum StatusJogo { AGUARDANDO, EM_JOGO, FINALIZADO }
+enum Role { USER, ADMIN }
+enum TipoQuestao { MULTIPLA_ESCOLHA, VERDADEIRO_FALSO }
