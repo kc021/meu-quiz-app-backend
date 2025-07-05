@@ -1,0 +1,93 @@
+// Configuração do Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// --- NOSSOS MODELOS DE DADOS ---
+
+model Usuario {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  email           String      @unique
+  nome            String
+  senha_hash      String
+  data_criacao    DateTime    @default(now())
+  
+  cargo           Role        @default(USER)
+
+  pontuacao       Pontuacao?
+  gruposLiderados Grupo[]     @relation("LiderDoGrupo")
+  grupoIds        String[]    @db.ObjectId
+  grupos          Grupo[]     @relation("MembrosDoGrupo", fields: [grupoIds], references: [id])
+  salaDeJogoId    String?     @db.ObjectId
+  salaDeJogo      SalaDeJogo? @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
+}
+
+model Categoria {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  nome      String       @unique
+  questoes  Questao[]
+  salasDeJogo SalaDeJogo[]
+}
+
+model Questao {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  enunciado       String
+  opcoes          String[]
+  respostaCorreta Int
+  categoriaId     String   @db.ObjectId
+  categoria       Categoria @relation(fields: [categoriaId], references: [id])
+
+  // --- CAMPO DE TIPO DE QUESTÃO ADICIONADO ---
+  tipo            TipoQuestao @default(MULTIPLA_ESCOLHA)
+}
+
+model Pontuacao {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  pontos    Int     @default(0)
+  usuarioId String  @unique @db.ObjectId
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+}
+
+model Grupo {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome      String   @unique
+  liderId   String   @db.ObjectId
+  lider     Usuario  @relation("LiderDoGrupo", fields: [liderId], references: [id])
+  membroIds String[] @db.ObjectId
+  membros   Usuario[] @relation("MembrosDoGrupo", fields: [membroIds], references: [id])
+}
+
+model SalaDeJogo {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  codigo    String     @unique
+  status    StatusJogo @default(AGUARDANDO)
+  hostId    String     @db.ObjectId
+  jogadores Usuario[]  @relation("JogadoresNaSala")
+
+  categoriaId String    @db.ObjectId
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+}
+
+// --- ENUMS (Tipos Especiais) ---
+
+enum StatusJogo {
+  AGUARDANDO
+  EM_JOGO
+  FINALIZADO
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// --- NOVO ENUM PARA O TIPO DE QUESTÃO ---
+enum TipoQuestao {
+  MULTIPLA_ESCOLHA
+  VERDADEIRO_FALSO
+}

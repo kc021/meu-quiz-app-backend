@@ -1,0 +1,288 @@
+### Registrar um novo usuário com sucesso
+POST http://localhost:3001/api/auth/registrar
+Content-Type: application/json
+
+{
+  "nome": "kayo",
+  "email": "kayodacosta8@gmail.com",
+  "senha": "senha12345"
+}
+
+###
+### -------------------------------------------
+### TESTES DE LOGIN
+### -------------------------------------------
+
+### Fazer login com credenciais corretas
+# Use o email e senha de um usuário que você já registrou com sucesso
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "kayodacosta@hotmail.com",
+  "senha": "Kayo3244"
+}
+
+### Tentar fazer login com senha incorreta
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "kayodacosta8@gmail.com",
+  "senha": "senha12345"
+}
+
+### Tentar fazer login com um email que não existe
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "naoexiste@email.com",
+  "senha": "qualquersenha"
+}
+
+###
+### -------------------------------------------
+### TESTES DE CATEGORIAS
+### -------------------------------------------
+
+### Criar uma nova categoria (SUCESSO)
+# Cole o token que você copiou do login aqui.
+# A palavra "Bearer" seguida de um espaço é obrigatória.
+POST http://localhost:3001/api/categorias
+Content-Type: application/json
+Authorization: Bearer ###
+### -------------------------------------------
+### TESTES DE CATEGORIAS
+### -------------------------------------------
+
+### Criar uma nova categoria (SUCESSO)
+# Cole o token que você copiou do login aqui.
+# A palavra "Bearer" seguida de um espaço é obrigatória.
+POST http://localhost:3001/api/categorias
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjZmN2U0YTU3YWFmMGUxZWRiMjE5OCIsIm5vbWUiOiJrYXlvIGNhc3RybyIsImlhdCI6MTc1MTYzNTg2NCwiZXhwIjoxNzUxNjY0NjY0fQ.EA6mRGPfV5j4bTWtRGE4D5uu_dO5A_UXEe4-AqQyTP4
+
+{
+  "nome": "historia"
+}
+
+### Tentar criar categoria SEM token (ERRO)
+POST http://localhost:3001/api/categorias
+Content-Type: application/json
+
+{
+  "nome": "historia"
+}
+
+### Listar todas as categorias (SUCESSO)
+# Esta rota é pública, não precisa de token.
+GET http://localhost:3001/api/categorias
+
+{
+  "nome": "historia"
+}
+
+### Tentar criar categoria SEM token (ERRO)
+POST http://localhost:3001/api/categorias
+Content-Type: application/json
+
+{
+  "nome": "Genética"
+}
+
+### Listar todas as categorias (SUCESSO)
+# Esta rota é pública, não precisa de token.
+GET http://localhost:3001/api/categorias
+
+### Listar todas as categorias (SUCESSO)
+# Esta rota é pública, não precisa de token.
+GET http://localhost:3001/api/categorias
+
+###
+### -------------------------------------------
+### TESTES DE QUESTÕES
+### -------------------------------------------
+
+### Criar uma nova questão (SUCESSO)
+POST http://localhost:3001/api/questoes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTE0ODIyLCJleHAiOjE3NTE1NDM2MjJ9.NxSfDsJ-ScidU9zMlyK7A_q59HybMzChy1Hfn4hZQ-M
+
+{
+  "enunciado": "Qual organela é conhecida como a 'central de energia' da célula?",
+  "opcoes": [
+    "Complexo de Golgi",
+    "Ribossomo",
+    "Mitocôndria",
+    "Lisossomo"
+  ],
+  "respostaCorreta": 2,
+  "categoriaId": "6865fc7ca7bcaaa45bc00a15"
+}
+
+### Buscar as questões de uma categoria específica
+GET http://localhost:3001/api/categorias/6865fc7ca7bcaaa45bc00a15/questoes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTE0ODIyLCJleHAiOjE3NTE1NDM2MjJ9.NxSfDsJ-ScidU9zMlyK7A_q59HybMzChy1Hfn4hZQ-M
+
+###
+### -------------------------------------------
+### TESTE DE SUBMISSÃO DE RESPOSTA
+### -------------------------------------------
+
+### Submeter uma resposta a uma questão
+# Lembre-se que a resposta correta para nossa primeira questão era o índice 2 ("Mitocôndria")
+POST http://localhost:3001/api/questoes/68660181c1dfc6e40fa8120e/responder
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTE0ODIyLCJleHAiOjE3NTE1NDM2MjJ9.NxSfDsJ-ScidU9zMlyK7A_q59HybMzChy1Hfn4hZQ-M
+
+
+{
+  "respostaDoUsuario": 1
+}
+###
+### -------------------------------------------
+### TESTE DE PERFIL E PONTUAÇÃO
+### -------------------------------------------
+
+### Buscar meu próprio perfil e pontuação
+GET http://localhost:3001/api/perfil/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTQ4NjQ2LCJleHAiOjE3NTE1Nzc0NDZ9.f2kSgxXY_R_XPbb_cZONVZmiCxfOIutvGkAJ0jQtLj8
+
+###
+### -------------------------------------------
+### TESTE DE RANKING
+### -------------------------------------------
+
+### Buscar o ranking geral (Top 10)
+GET http://localhost:3001/api/ranking/geral
+
+###
+### -------------------------------------------
+### TESTES DE GRUPOS
+### -------------------------------------------
+
+### Criar um novo grupo (SUCESSO)
+POST http://localhost:3001/api/grupos
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTUxNDc5LCJleHAiOjE3NTE1ODAyNzl9.i50V8TeUBejSlIpINd31vzwjzHoh4_W1y8xkfj4APKI
+
+{
+  "nome": "Os Lendários da Biologia"
+}
+
+### Listar os grupos dos quais eu faço parte
+GET http://localhost:3001/api/grupos/meus
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTQ4NjQ2LCJleHAiOjE3NTE1Nzc0NDZ9.f2kSgxXY_R_XPbb_cZONVZmiCxfOIutvGkAJ0jQtLj8
+
+### Ver os detalhes de um grupo específico
+# Primeiro, rode o teste acima e copie o ID de um grupo para colar aqui
+GET http://localhost:3001/api/grupos/68668902e9d01ad7c0125424
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTQ4NjQ2LCJleHAiOjE3NTE1Nzc0NDZ9.f2kSgxXY_R_XPbb_cZONVZmiCxfOIutvGkAJ0jQtLj8
+
+
+### Registrar um novo usuário com sucesso
+POST http://localhost:3001/api/auth/registrar
+Content-Type: application/json
+
+{
+  "nome": "Convidado Amigo",
+  "email": "convidado@email.com",
+  "senha": "senha_do_convidado"
+}
+
+###
+### -------------------------------------------
+### TESTE DE CONVITE PARA GRUPO
+### -------------------------------------------
+
+### Convidar um amigo para um grupo (SUCESSO)
+# :id na URL deve ser o ID do grupo
+POST http://localhost:3001/api/grupos/68668e1e8403bbd8b7933c85/convidar
+Content-Type: application/json
+# O token deve ser do LÍDER do grupo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTUxNzIyLCJleHAiOjE3NTE1ODA1MjJ9.AIkm9SVgK_dudx81_To1wGX_MdrdYTzzepsjkVdck4g
+
+{
+  "email": "convidado@email.com"
+}
+
+###
+### -------------------------------------------
+### TESTE DE RANKING DE GRUPOS
+### -------------------------------------------
+
+### Buscar o ranking geral de grupos (Top 10)
+GET http://localhost:3001/api/ranking/grupos
+
+
+###
+### -------------------------------------------
+### TESTES DE JOGO SÍNCRONO
+### -------------------------------------------
+
+### Criar uma nova sala de jogo (Lobby)
+POST http://localhost:3001/api/jogos/criar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjVmNWE3MTU0MGJkMGU2YjZmNDc2MSIsIm5vbWUiOiJrYXlvIiwiaWF0IjoxNzUxNTUxNzIyLCJleHAiOjE3NTE1ODA1MjJ9.AIkm9SVgK_dudx81_To1wGX_MdrdYTzzepsjkVdck4g
+
+###
+### -------------------------------------------
+### TESTES DE ADMINISTRAÇÃO DE CATEGORIAS
+### -------------------------------------------
+
+### (ADMIN) Criar uma nova categoria
+POST http://localhost:3001/api/admin/categorias
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjcwNDg5YzQwZDk4ODJhODdhYThlOSIsIm5vbWUiOiJkZWJvcmEiLCJpYXQiOjE3NTE2MDI4MTgsImV4cCI6MTc1MTYzMTYxOH0.3OBARw_GLzL1c-h7nhN0WuPQEpzxHbZmH6NG-jwcHSU
+
+{
+  "nome": "História do Brasil"
+}
+
+### -------------------------------------------
+
+### (ADMIN) Atualizar uma categoria
+# Primeiro, corra o GET /api/categorias para obter um ID válido e cole-o na URL
+PUT http://localhost:3001/api/admin/categorias/6865fc7ca7bcaaa45bc00a15
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjZmN2U0YTU3YWFmMGUxZWRiMjE5OCIsIm5vbWUiOiJrYXlvIGNhc3RybyIsImlhdCI6MTc1MTYwMjU3NCwiZXhwIjoxNzUxNjMxMzc0fQ.lFcTgBhlPlizba4OdudXJe6eYD-lslwUHcy2whSvu7I
+
+{
+  "nome": "História do Brasil - Período Colonial"
+}
+
+### -------------------------------------------
+
+### (ADMIN) Apagar uma categoria
+# Use o ID de uma categoria que NÃO tenha questões associadas
+DELETE http://localhost:3001/api/admin/categorias/6865fc7ca7bcaaa45bc00a15
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjZmN2U0YTU3YWFmMGUxZWRiMjE5OCIsIm5vbWUiOiJrYXlvIGNhc3RybyIsImlhdCI6MTc1MTYwMjU3NCwiZXhwIjoxNzUxNjMxMzc0fQ.lFcTgBhlPlizba4OdudXJe6eYD-lslwUHcy2whSvu7I
+
+###
+### -------------------------------------------
+### TESTES DE ADMINISTRAÇÃO DE QUESTÕES
+### -------------------------------------------
+
+### (ADMIN) Criar uma nova questão
+# Você precisa de um ID de categoria válido. Corra o GET /api/categorias para obter um.
+POST http://localhost:3001/api/admin/questoes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjZmN2U0YTU3YWFmMGUxZWRiMjE5OCIsIm5vbWUiOiJrYXlvIGNhc3RybyIsImlhdCI6MTc1MTYzNTk3OSwiZXhwIjoxNzUxNjY0Nzc5fQ.6S98PBoowqKnleppKA5HVlhKeXmRsEI8nn3RneWVSAs
+
+{
+  "enunciado": "Quem descobriu o Brasil?",
+  "opcoes": [
+    "Dom Pedro I",
+    "Pedro Álvares Cabral",
+    "Tiradentes"
+  ],
+  "respostaCorreta": 1,
+  "categoriaId": "6865fc7ca7bcaaa45bc00a15"
+}
+
+### -------------------------------------------
+
+### (ADMIN) Apagar a questão que acabámos de criar
+# Copie o ID da questão da resposta acima e cole-o na URL
+DELETE http://localhost:3001/api/admin/questoes/6867d8604c9c18c3f401a51c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjZmN2U0YTU3YWFmMGUxZWRiMjE5OCIsIm5vbWUiOiJrYXlvIGNhc3RybyIsImlhdCI6MTc1MTYzNTk3OSwiZXhwIjoxNzUxNjY0Nzc5fQ.6S98PBoowqKnleppKA5HVlhKeXmRsEI8nn3RneWVSAs
