@@ -16,11 +16,7 @@ model Usuario {
   cargo                Role             @default(USER)
   pontuacao            Pontuacao?
   gruposLiderados      Grupo[]          @relation("LiderDoGrupo")
-  
-  // --- ESTE É UM DOS CAMPOS QUE FALTAVA ---
-  // A relação de volta para a tabela de junção
   gruposMembro         MembrosDoGrupo[] @relation("UsuarioMembro")
-
   salasDeJogoAnfitriao SalaDeJogo[]     @relation("HostDaSala")
   salaDeJogoId         String?
   salaDeJogo           SalaDeJogo?      @relation("JogadoresNaSala", fields: [salaDeJogoId], references: [id])
@@ -55,9 +51,6 @@ model Grupo {
   nome    String           @unique
   liderId String
   lider   Usuario          @relation("LiderDoGrupo", fields: [liderId], references: [id])
-  
-  // --- ESTE É O OUTRO CAMPO QUE FALTAVA ---
-  // A relação de volta para a tabela de junção
   membros MembrosDoGrupo[] @relation("MembrosDoGrupo")
 }
 
@@ -81,6 +74,18 @@ model SalaDeJogo {
   categoria   Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 }
 
-enum StatusJogo { AGUARDANDO, EM_JOGO, FINALIZADO }
-enum Role { USER, ADMIN }
-enum TipoQuestao { MULTIPLA_ESCOLHA, VERDADEIRO_FALSO }
+enum StatusJogo {
+  AGUARDANDO
+  EM_JOGO
+  FINALIZADO
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TipoQuestao {
+  MULTIPLA_ESCOLHA
+  VERDADEIRO_FALSO
+}
